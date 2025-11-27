@@ -22,6 +22,8 @@ set(SRC
         src/tensor.cpp
         src/linear.cpp
         src/utils.cpp
+        src/layernorm.cpp
+        src/attention.cpp
 )
 
 # 生成可执行文件

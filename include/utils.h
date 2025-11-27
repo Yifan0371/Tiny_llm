@@ -5,3 +5,5 @@
 #include "tensor.h"
 
 Tensor softmax(const Tensor& x);
+
+Tensor gelu(const Tensor& x);

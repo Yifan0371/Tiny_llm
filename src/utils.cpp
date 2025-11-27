@@ -28,3 +28,17 @@ Tensor softmax(const Tensor& x) {
     }
     return y;
 }
+
+Tensor gelu(const Tensor& x) {
+    int n = x.rows();
+    Tensor y(n,1);
+    const float* x_ptr =x.fptr();
+    float* y_ptr = y.fptr();
+
+    for (int i=0;i<n;i++) {
+        float v=x_ptr[i];
+        float t=std::tanh(0.7988456f*(v+0.044715f*v*v*v));
+        y_ptr[i]=0.5f*v*(1.0f+t);
+    }
+    return y;
+}
