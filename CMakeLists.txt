@@ -24,6 +24,7 @@ set(SRC
         src/utils.cpp
         src/layernorm.cpp
         src/attention.cpp
+        src/ffn.cpp
 )
 
 # 生成可执行文件
