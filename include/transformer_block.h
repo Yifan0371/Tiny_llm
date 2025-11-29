@@ -1,18 +1,16 @@
-//
-// Created by liyif on 2025/11/29.
-//
 #pragma once
-#include "layernorm.h"
-#include "attention.h"
-#include "ffn.h"
 #include "tensor.h"
+#include "layernorm.h"
+#include "ffn.h"
+#include "attention.h"
 
-class TransformerBlock{
+class TransformerBlock {
 public:
     LayerNorm ln1;
-    MultiHeadAttention mha;
+    Attention attn;
     LayerNorm ln2;
     FFN ffn;
-    TransformerBlock(int hidden_dim, int intermediate_dim);
+
+    TransformerBlock(int hidden_dim, int num_heads, int ffn_dim);
     Tensor forward(const Tensor& x) const;
 };

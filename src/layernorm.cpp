@@ -11,32 +11,36 @@ LayerNorm::LayerNorm(int dim):gamma(dim,1),beta(dim,1){
     }
 }
 Tensor LayerNorm::forward(const Tensor& x) const {
-    assert(x.cols()==1);
+    int dim = x.rows();
+    int seq_len = x.cols();
 
-    int dim=x.rows();
-    Tensor y(dim,1);
+    Tensor y(dim, seq_len);
 
-    const float* x_ptr = x.fptr();
-    const float* g_ptr = gamma.fptr();
-    const float* b_ptr = beta.fptr();
-    float* y_ptr = y.fptr();
+    for (int t = 0; t < seq_len; ++t) {
 
-    //均值
-    float mean=0.0f;
-    for(int i=0;i<dim;i++){mean+=x_ptr[i];}
-    mean/=dim;
+        // 1. compute mean
+        float mean = 0.0f;
+        for (int i = 0; i < dim; ++i) {
+            mean += x(i, t);
+        }
+        mean /= dim;
 
-    float var=0.0f;
-    for(int i=0;i<dim;i++){
-        float diff=x_ptr[i]-mean;
-        var+=diff*diff;
+        // 2. compute variance
+        float var = 0.0f;
+        for (int i = 0; i < dim; ++i) {
+            float d = x(i, t) - mean;
+            var += d * d;
+        }
+        var /= dim;
+
+        float inv_std = 1.0f / std::sqrt(var + 1e-5f);
+
+        // 3. normalize and apply gamma/beta
+        for (int i = 0; i < dim; ++i) {
+            float norm = (x(i, t) - mean) * inv_std;
+            y(i, t) = norm * gamma(i, 0) + beta(i, 0);
+        }
     }
-    var/=dim;
 
-    float inv_std = 1.0f / std::sqrt(var + 1e-5f);
-    for(int i=0;i<dim;i++){
-        float norm=(x_ptr[i]-mean)*inv_std;
-        y_ptr[i]=norm*g_ptr[i]+b_ptr[i];
-    }
     return y;
 }

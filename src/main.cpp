@@ -1,28 +1,31 @@
 #include <iostream>
-#include "ffn.h"
+#include "transformer_block.h"
 
 int main() {
     int hidden_dim = 4;
-    int intermediate_dim = 16;
+    int num_heads  = 2;
+    int ffn_dim    = 16;
+    int seq_len    = 3;
 
-    FFN ffn(hidden_dim, intermediate_dim);
+    TransformerBlock block(hidden_dim, num_heads, ffn_dim);
 
-    // 初始化权重
-    ffn.fc1.weight.fill(0.1f);
-    ffn.fc2.weight.fill(0.1f);
+    Tensor x(hidden_dim, seq_len);
+    float v = 1.0f;
 
-    ffn.fc1.bias.fill(0.0f);
-    ffn.fc2.bias.fill(0.0f);
+    for (int c = 0; c < seq_len; ++c) {
+        for (int r = 0; r < hidden_dim; ++r) {
+            x(r, c) = v++;
+        }
+    }
 
-    // 输入
-    Tensor x(hidden_dim, 1);
-    x(0,0)=1; x(1,0)=2; x(2,0)=3; x(3,0)=4;
+    Tensor y = block.forward(x);
 
-    Tensor y = ffn.forward(x);
-
-    std::cout << "FFN output:\n";
-    for (int i = 0; i < hidden_dim; ++i) {
-        std::cout << y(i,0) << "\n";
+    std::cout << "TransformerBlock Output:\n";
+    for (int r = 0; r < hidden_dim; ++r) {
+        for (int c = 0; c < seq_len; ++c) {
+            std::cout << y(r, c) << " ";
+        }
+        std::cout << "\n";
     }
 
     return 0;

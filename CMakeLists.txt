@@ -25,6 +25,7 @@ set(SRC
         src/layernorm.cpp
         src/attention.cpp
         src/ffn.cpp
+        src/transformer_block.cpp
 )
 
 # 生成可执行文件

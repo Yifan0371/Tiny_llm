@@ -3,9 +3,13 @@
 //
 #include "transformer_block.h"
 
-TransformerBlock::TransformerBlock(int hidden_dim, int intermediate_dim):ln1(hidden_dim),mha(hidden_dim),ln2(hidden_dim),ffn(hidden_dim,intermediate_dim)
-{
-}
+
+TransformerBlock::TransformerBlock(int hidden_dim, int num_heads, int ffn_dim)
+    : ln1(hidden_dim),
+      attn(hidden_dim, num_heads),
+      ln2(hidden_dim),
+      ffn(hidden_dim, ffn_dim)
+{}
 
 Tensor TransformerBlock::forward(const Tensor& x) const{
     int hidden_dim=x.rows();
@@ -13,7 +17,7 @@ Tensor TransformerBlock::forward(const Tensor& x) const{
 
     Tensor x_norm=ln1.forward(x);
 
-    Tensor attn_out = mha.forward(x_norm);
+    Tensor attn_out = attn.forward(x_norm);
 
     Tensor x1(hidden_dim,seq_len);
 
