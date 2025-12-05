@@ -4,6 +4,7 @@
 #include "layernorm.h"
 #include <cmath>
 #include <cassert>
+#include "weight_loader.h"
 LayerNorm::LayerNorm(int dim):gamma(dim,1),beta(dim,1){
     for(int i=0;i<dim;i++){
         gamma(i,0)=1.0f;
@@ -43,4 +44,8 @@ Tensor LayerNorm::forward(const Tensor& x) const {
     }
 
     return y;
+}
+void LayerNorm::load_from(WeightLoader& loader) {
+    loader.read_into(gamma);
+    loader.read_into(beta);
 }

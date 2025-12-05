@@ -14,8 +14,6 @@ endif()
 
 # 包含头文件目录
 include_directories(${PROJECT_SOURCE_DIR}/include)
-
-# ------- tiny-llm 库源文件（没有 main.cpp）-------
 set(TINY_LLM_SRC
         src/tensor.cpp
         src/linear.cpp
@@ -25,11 +23,13 @@ set(TINY_LLM_SRC
         src/ffn.cpp
         src/transformer_block.cpp
         src/model.cpp
+        src/weight_loader.cpp
 )
 
 # ------- 生成 tiny-llm 库 -------
 add_library(tiny-llm STATIC ${TINY_LLM_SRC})
 
-# ------- 示例程序 -------
 add_executable(run_model examples/run_model.cpp)
 target_link_libraries(run_model tiny-llm)
+add_executable(alignment_check examples/alignment_check.cpp)
+target_link_libraries(alignment_check tiny-llm)

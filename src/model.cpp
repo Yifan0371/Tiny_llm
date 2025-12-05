@@ -27,11 +27,22 @@ TransformerModel::TransformerModel(int vocab_size_,
     }
 }
 
+void TransformerModel::load_from(WeightLoader& loader) {
+    loader.read_into(embedding);
+    for (auto& block : blocks) {
+        block.load_from(loader);
+    }
+    lm_head.load_from(loader);
+}
 Tensor TransformerModel::forward(const std::vector<int>& tokens) const
 {
+    return forward_debug(tokens).logits;
+}
+
+ForwardDebugInfo TransformerModel::forward_debug(const std::vector<int>& tokens) const {
     int T = static_cast<int>(tokens.size());
     assert(T > 0 && T <= max_seq_len);
-
+	ForwardDebugInfo info;
     // ===========================
     // 1. Embedding lookup: [hidden_dim, T]
     // ===========================
@@ -46,13 +57,14 @@ Tensor TransformerModel::forward(const std::vector<int>& tokens) const
             x(h, t) = embedding(id, h);
         }
     }
-
+	info.embedding_output = x;
     // ===========================
     // 2. Pass through N TransformerBlocks
     // ===========================
     Tensor h = x;
     for (const auto& block : blocks) {
-        h = block.forward(h);   // shape still [hidden_dim, T]
+        h = block.forward(h);
+		info.block_outputs.push_back(h);  // shape still [hidden_dim, T]
     }
 
     // ===========================
@@ -78,5 +90,6 @@ Tensor TransformerModel::forward(const std::vector<int>& tokens) const
         }
     }
 
-    return logits;
+    info.logits = logits;
+    return info;
 }

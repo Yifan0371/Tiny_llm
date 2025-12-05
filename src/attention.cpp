@@ -2,7 +2,7 @@
 #include "utils.h"   // softmax
 #include <cmath>
 #include <cassert>
-
+#include "weight_loader.h"
 Attention::Attention(int hidden_dim, int num_heads)
     : num_heads(num_heads),
       head_dim(hidden_dim / num_heads),
@@ -123,4 +123,10 @@ Tensor Attention::forward(const Tensor& x) const {
     }
 
     return y;
+}
+void Attention::load_from(WeightLoader& loader) {
+    q_proj.load_from(loader);
+    k_proj.load_from(loader);
+    v_proj.load_from(loader);
+    o_proj.load_from(loader);
 }

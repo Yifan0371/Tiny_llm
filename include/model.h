@@ -9,7 +9,13 @@
 #include "ffn.h"
 #include "layernorm.h"
 #include "transformer_block.h"
+#include "weight_loader.h"
 
+struct ForwardDebugInfo {
+    Tensor embedding_output;
+    std::vector<Tensor> block_outputs;
+    Tensor logits;
+};
 class TransformerModel{
 public:
     //超参数
@@ -36,4 +42,6 @@ public:
     // 输入: token 序列（长度 T）
     // 输出: logits，形状 [vocab_size, T]
     Tensor forward(const std::vector<int>& tokens) const;
+	void load_from(WeightLoader& loader);
+	 ForwardDebugInfo forward_debug(const std::vector<int>& tokens) const;
 };

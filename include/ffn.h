@@ -6,6 +6,9 @@
 #include "linear.h"
 #include "utils.h"
 
+class WeightLoader;
+
+
 class FFN{
 public:
     Linear fc1;
@@ -13,4 +16,7 @@ public:
     FFN(int hidden_dim, int intermediate_dim);
 
     Tensor forward(const Tensor &x)const;
+
+    // Load FC1 and FC2 parameters from the shared weight stream.
+    void load_from(WeightLoader& loader);
 };

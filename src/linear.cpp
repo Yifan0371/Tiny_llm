@@ -5,6 +5,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <cmath>
+#include "weight_loader.h"
 //Xavier初始化
 Linear::Linear(int out_dim,int in_dim)
     : weight(out_dim,in_dim), bias(out_dim,1)
@@ -41,4 +42,8 @@ Tensor Linear::forward(const Tensor& x) const {
     }
 
     return y;
+}
+void Linear::load_from(WeightLoader& loader) {
+    loader.read_into(weight);
+    loader.read_into(bias);
 }
