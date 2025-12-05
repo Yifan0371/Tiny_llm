@@ -3,9 +3,10 @@
 //
 #pragma once
 
-#include "Tensor.h"
+#include "tensor.h"
 #include "linear.h"
 
+class WeightLoader;
 
 class Attention{
 public:
@@ -19,4 +20,7 @@ public:
 
     Attention(int hidden_dim, int num_heads);
     Tensor forward(const Tensor & x) const;
+
+	    // Load q/k/v/o projection weights from a shared binary stream.
+    void load_from(WeightLoader& loader);
 };

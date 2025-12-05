@@ -5,6 +5,11 @@
 #pragma once
 #include "tensor.h"
 
+
+class WeightLoader;
+
+
+
 class LayerNorm{
 public:
     Tensor gamma;
@@ -13,4 +18,7 @@ public:
     LayerNorm(int dim);
 
     Tensor forward(const Tensor& x) const;
+
+	    // Load gamma and beta values from a shared binary weight stream.
+    void load_from(WeightLoader& loader);
 };

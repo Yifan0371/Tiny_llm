@@ -25,6 +25,7 @@ set(TINY_LLM_SRC
         src/ffn.cpp
         src/transformer_block.cpp
         src/model.cpp
+        src/weight_loader.cpp
 )
 
 # ------- 生成 tiny-llm 库 -------

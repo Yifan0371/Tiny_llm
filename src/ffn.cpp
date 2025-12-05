@@ -3,7 +3,7 @@
 //
 #include "ffn.h"
 #include <cassert>
-
+#include "weight_loader.h"
 FFN::FFN(int hidden_dim, int intermediate_dim):fc1(intermediate_dim, hidden_dim),fc2(hidden_dim,intermediate_dim)
 {
 }
@@ -34,7 +34,10 @@ Tensor FFN::forward(const Tensor &x)const
     return y;
 }
 
-
+void FFN::load_from(WeightLoader& loader){
+    fc1.load_from(loader);
+    fc2.load_from(loader);
+}
 
 
 

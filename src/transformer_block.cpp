@@ -3,7 +3,7 @@
 //
 #include "transformer_block.h"
 
-
+#include "weight_loader.h"
 TransformerBlock::TransformerBlock(int hidden_dim, int num_heads, int ffn_dim)
     : ln1(hidden_dim),
       attn(hidden_dim, num_heads),
@@ -31,4 +31,11 @@ Tensor TransformerBlock::forward(const Tensor& x) const{
         for (int t = 0; t < seq_len; ++t)
             y(i,t) = x1(i,t) + ffn_out(i,t);
     return y;
+}
+void TransformerBlock::load_from(WeightLoader& loader){
+    // Follow the export order: attention projections -> FFN -> LayerNorms
+    attn.load_from(loader);
+    ffn.load_from(loader);
+    ln1.load_from(loader);
+    ln2.load_from(loader);
 }
