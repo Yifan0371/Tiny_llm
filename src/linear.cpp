@@ -5,7 +5,9 @@
 #include <cassert>
 #include <cstdlib>
 #include <cmath>
+#include <algorithm>
 #include "weight_loader.h"
+#include "utils.h"
 //Xavier初始化
 Linear::Linear(int out_dim,int in_dim)
     : weight(out_dim,in_dim), bias(out_dim,1)
@@ -20,6 +22,12 @@ Linear::Linear(int out_dim,int in_dim)
     }
 }
 Tensor Linear::forward(const Tensor& x) const {
+    if (use_int8_) {
+        return forward_int8(x);
+    }
+
+
+
     assert(x.cols() == 1);   // x 是列向量
     assert(weight.cols() == x.rows());
 
@@ -46,4 +54,40 @@ Tensor Linear::forward(const Tensor& x) const {
 void Linear::load_from(WeightLoader& loader) {
     loader.read_into(weight);
     loader.read_into(bias);
+}
+void Linear::quantize_weight() {
+    weight_scale_ = quantize_symmetric(weight, weight_int8_);
+}
+
+Tensor Linear::forward_int8(const Tensor& x) const {
+    assert(x.cols() == 1);
+    assert(weight.cols() == x.rows());
+    assert(!weight_int8_.empty());
+
+    int out_dim = weight.rows();
+    int in_dim  = weight.cols();
+
+    Tensor y(out_dim, 1);
+
+    const float* x_ptr = x.fptr();
+    float* y_ptr = y.fptr();
+
+    const int8_t* w_ptr = weight_int8_.data();
+    const float* b_ptr = bias.fptr();
+
+#pragma omp parallel for
+    for (int i = 0; i < out_dim; ++i) {
+        float acc = 0.0f;
+        for (int j = 0; j < in_dim; ++j) {
+            acc += static_cast<float>(w_ptr[i * in_dim + j]) * x_ptr[j];
+        }
+        y_ptr[i] = acc * weight_scale_ + b_ptr[i];
+    }
+
+    return y;
+}
+
+void Linear::enable_int8() {
+    quantize_weight();
+    use_int8_ = true;
 }

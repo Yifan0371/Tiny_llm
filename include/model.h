@@ -38,10 +38,12 @@ public:
                      int num_heads,
                      int num_layers,
                      int max_seq_len);
+    // 开启全模型的 INT8 量化（per-tensor scale）
+    void enable_int8();
     // ====== 前向推理 ======
     // 输入: token 序列（长度 T）
     // 输出: logits，形状 [vocab_size, T]
     Tensor forward(const std::vector<int>& tokens) const;
-	void load_from(WeightLoader& loader);
-	 ForwardDebugInfo forward_debug(const std::vector<int>& tokens) const;
+    void load_from(WeightLoader& loader);
+	ForwardDebugInfo forward_debug(const std::vector<int>& tokens) const;
 };

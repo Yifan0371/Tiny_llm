@@ -134,3 +134,9 @@ void Attention::load_from(WeightLoader& loader) {
     v_proj.load_from(loader);
     o_proj.load_from(loader);
 }
+void Attention::enable_int8() {
+    q_proj.enable_int8();
+    k_proj.enable_int8();
+    v_proj.enable_int8();
+    o_proj.enable_int8();
+}

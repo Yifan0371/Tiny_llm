@@ -14,7 +14,7 @@ public:
 
     TransformerBlock(int hidden_dim, int num_heads, int ffn_dim);
     Tensor forward(const Tensor& x) const;
-
+    void enable_int8();
     // Load all submodule parameters from the shared binary weight stream.
     void load_from(WeightLoader& loader);
 };

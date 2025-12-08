@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <cstddef>
+#include <cstdint>
 
 // 一个简单的 2D float32 Tensor：
 // - 行主序存储 (row-major)
@@ -50,9 +51,23 @@ public:
 	void load_from_file(const std::string& path);
 	//写入float32二进制文件
 	void save_to_file(const std::string& path) const;
-
 private:
     int rows_{0};
     int cols_{0};
     std::vector<float> data_;  // 行主序存储的连续内存
 };
+struct QuantizedTensor {
+	int rows{0};
+	int cols{0};
+	float scale{1.0f};
+	std::vector<int8_t> data;
+
+	QuantizedTensor() = default;
+	QuantizedTensor(int r, int c) : rows(r), cols(c), data(static_cast<std::size_t>(r) * c) {}
+};
+
+// 将 float32 Tensor 量化为 int8（per-tensor scale）
+QuantizedTensor quantize_tensor(const Tensor& src);
+
+// 将量化结果反量化回 float32 Tensor
+Tensor dequantize_tensor(const QuantizedTensor& q);

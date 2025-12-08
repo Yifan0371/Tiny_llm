@@ -20,7 +20,7 @@ public:
 
     Attention(int hidden_dim, int num_heads);
     Tensor forward(const Tensor & x) const;
-
+    void enable_int8();
 	    // Load q/k/v/o projection weights from a shared binary stream.
     void load_from(WeightLoader& loader);
 };

@@ -19,6 +19,7 @@ set(TINY_LLM_SRC
         src/linear.cpp
         src/utils.cpp
         src/layernorm.cpp
+        src/linear_int8.cpp
         src/attention.cpp
         src/ffn.cpp
         src/transformer_block.cpp
@@ -34,3 +35,5 @@ add_executable(run_model examples/run_model.cpp)
 target_link_libraries(run_model tiny-llm)
 add_executable(alignment_check examples/alignment_check.cpp)
 target_link_libraries(alignment_check tiny-llm)
+add_executable(test_quantization examples/test_quantization.cpp)
+target_link_libraries(test_quantization tiny-llm)

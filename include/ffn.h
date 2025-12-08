@@ -14,7 +14,7 @@ public:
     Linear fc1;
     Linear fc2;
     FFN(int hidden_dim, int intermediate_dim);
-
+    void enable_int8();
     Tensor forward(const Tensor &x)const;
 
     // Load FC1 and FC2 parameters from the shared weight stream.

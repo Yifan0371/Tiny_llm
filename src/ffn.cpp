@@ -39,5 +39,8 @@ void FFN::load_from(WeightLoader& loader){
     fc2.load_from(loader);
 }
 
-
+void FFN::enable_int8() {
+    fc1.enable_int8();
+    fc2.enable_int8();
+}
 

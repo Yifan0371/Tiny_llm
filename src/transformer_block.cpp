@@ -39,3 +39,7 @@ void TransformerBlock::load_from(WeightLoader& loader){
     ln1.load_from(loader);
     ln2.load_from(loader);
 }
+void TransformerBlock::enable_int8() {
+    attn.enable_int8();
+    ffn.enable_int8();
+}

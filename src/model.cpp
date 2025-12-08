@@ -34,6 +34,14 @@ void TransformerModel::load_from(WeightLoader& loader) {
     }
     lm_head.load_from(loader);
 }
+
+
+void TransformerModel::enable_int8() {
+    for (auto& block : blocks) {
+        block.enable_int8();
+    }
+    lm_head.enable_int8();
+}
 Tensor TransformerModel::forward(const std::vector<int>& tokens) const
 {
     return forward_debug(tokens).logits;
