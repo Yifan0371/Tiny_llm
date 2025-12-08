@@ -32,7 +32,7 @@ Tensor Linear::forward(const Tensor& x) const {
     const float* x_ptr = x.fptr();
     const float* b_ptr = bias.fptr();
     float* y_ptr = y.fptr();
-
+#pragma omp parallel for
     for (int i = 0; i < out_dim; i++) {
         float sum = b_ptr[i];
         for (int j = 0; j < in_dim; j++) {

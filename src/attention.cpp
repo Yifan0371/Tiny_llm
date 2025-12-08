@@ -2,6 +2,8 @@
 #include "utils.h"   // softmax
 #include <cmath>
 #include <cassert>
+#include <cmath>
+#include <omp.h>
 #include "weight_loader.h"
 Attention::Attention(int hidden_dim, int num_heads)
     : num_heads(num_heads),
@@ -72,6 +74,7 @@ Tensor Attention::forward(const Tensor& x) const {
         Tensor scores(seq_len, seq_len);
         Tensor Oh(head_dim, seq_len);  // 该 head 的输出
 
+		#pragma omp parallel for
         for (int t = 0; t < seq_len; ++t) {
             // 计算第 t 个 token 对所有 j 的 score[t,j]
             for (int j = 0; j < seq_len; ++j) {
@@ -110,9 +113,10 @@ Tensor Attention::forward(const Tensor& x) const {
 
     // 3. 输出投影 out_proj：对每一列做一次 Linear
     Tensor y(hidden_dim, seq_len);
-    Tensor in_col(hidden_dim, 1);
+    #pragma omp parallel for
 
     for (int t = 0; t < seq_len; ++t) {
+		Tensor in_col(hidden_dim, 1);
         for (int r = 0; r < hidden_dim; ++r) {
             in_col(r, 0) = heads_out(r, t);
         }

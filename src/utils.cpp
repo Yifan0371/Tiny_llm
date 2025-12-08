@@ -3,6 +3,8 @@
 //
 #include "utils.h"
 #include <cmath>
+
+#include <omp.h>
 #include <algorithm>
 
 Tensor softmax(const Tensor& x) {
@@ -44,4 +46,10 @@ Tensor gelu(const Tensor& x) {
         y_ptr[i] = 0.5f * v * (1.0f + t);
     }
     return y;
+}
+
+void set_omp_threads(int num_threads) {
+    if (num_threads > 0) {
+        omp_set_num_threads(num_threads);
+    }
 }

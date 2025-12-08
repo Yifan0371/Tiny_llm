@@ -1,8 +1,11 @@
 #include "model.h"
+#include "utils.h"
 #include <iostream>
 #include <vector>
 
 int main() {
+
+	set_omp_threads(4);
     int vocab = 1000;
     int hidden = 128;
     int num_heads = 8;

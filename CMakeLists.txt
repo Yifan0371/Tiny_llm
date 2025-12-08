@@ -4,7 +4,7 @@ project(tiny_llm CXX)
 # C++17
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
+find_package(OpenMP REQUIRED)
 # 编译优化和 OpenMP
 if (MSVC)
     add_compile_options(/O2 /openmp)
@@ -28,6 +28,7 @@ set(TINY_LLM_SRC
 
 # ------- 生成 tiny-llm 库 -------
 add_library(tiny-llm STATIC ${TINY_LLM_SRC})
+target_link_libraries(tiny-llm PUBLIC OpenMP::OpenMP_CXX)
 
 add_executable(run_model examples/run_model.cpp)
 target_link_libraries(run_model tiny-llm)
