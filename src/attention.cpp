@@ -128,6 +128,92 @@ Tensor Attention::forward(const Tensor& x) const {
 
     return y;
 }
+Tensor Attention::forward_incremental(const Tensor& x, Tensor& k_cache, Tensor& v_cache) const {
+    // x: [hidden_dim, 1]
+    int hidden_dim = x.rows();
+    int seq_len = x.cols();
+
+    assert(seq_len == 1);
+    assert(hidden_dim == head_dim * num_heads);
+
+    // 1) 仅计算当前 token 的 Q，同时生成当前的 K/V 追加到缓存
+    Tensor q_col = q_proj.forward(x);  // [hidden_dim,1]
+    Tensor k_col = k_proj.forward(x);
+    Tensor v_col = v_proj.forward(x);
+
+    int prev_len = k_cache.cols();
+    int new_len = prev_len + 1;
+
+    Tensor new_k(hidden_dim, new_len);
+    Tensor new_v(hidden_dim, new_len);
+
+    // 复制历史缓存
+    if (prev_len > 0) {
+        for (int r = 0; r < hidden_dim; ++r) {
+            for (int c = 0; c < prev_len; ++c) {
+                new_k(r, c) = k_cache(r, c);
+                new_v(r, c) = v_cache(r, c);
+            }
+        }
+    }
+
+    // 追加当前 K/V
+    for (int r = 0; r < hidden_dim; ++r) {
+        new_k(r, prev_len) = k_col(r, 0);
+        new_v(r, prev_len) = v_col(r, 0);
+    }
+
+    k_cache = new_k;
+    v_cache = new_v;
+
+    // 2) 对当前 token 做 attention：Q(current) × K(all)^T
+    Tensor heads_out(hidden_dim, 1);
+    float scale = 1.0f / std::sqrt(static_cast<float>(head_dim));
+
+    for (int h = 0; h < num_heads; ++h) {
+        int row_offset = h * head_dim;
+
+        Tensor Qh(head_dim, 1);
+        Tensor Kh(head_dim, new_len);
+        Tensor Vh(head_dim, new_len);
+
+        for (int r = 0; r < head_dim; ++r) {
+            Qh(r, 0) = q_col(row_offset + r, 0);
+            for (int c = 0; c < new_len; ++c) {
+                Kh(r, c) = k_cache(row_offset + r, c);
+                Vh(r, c) = v_cache(row_offset + r, c);
+            }
+        }
+
+        // scores: 当前 token 对所有历史位置的注意力得分
+        Tensor score_row(new_len, 1);
+        for (int j = 0; j < new_len; ++j) {
+            float dot = 0.0f;
+            for (int d = 0; d < head_dim; ++d) {
+                dot += Qh(d, 0) * Kh(d, j);
+            }
+            score_row(j, 0) = dot * scale;
+        }
+
+        Tensor alpha = softmax(score_row);  // [new_len,1]
+
+        Tensor Oh(head_dim, 1);
+        for (int d = 0; d < head_dim; ++d) {
+            float sum = 0.0f;
+            for (int j = 0; j < new_len; ++j) {
+                sum += alpha(j, 0) * Vh(d, j);
+            }
+            Oh(d, 0) = sum;
+        }
+
+        for (int r = 0; r < head_dim; ++r) {
+            heads_out(row_offset + r, 0) = Oh(r, 0);
+        }
+    }
+
+    Tensor out = o_proj.forward(heads_out);
+    return out;
+}
 void Attention::load_from(WeightLoader& loader) {
     q_proj.load_from(loader);
     k_proj.load_from(loader);

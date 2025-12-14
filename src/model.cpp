@@ -101,3 +101,38 @@ ForwardDebugInfo TransformerModel::forward_debug(const std::vector<int>& tokens)
     info.logits = logits;
     return info;
 }
+Tensor TransformerModel::forward_incremental(const std::vector<int>& tokens, std::vector<KVCache>& kv_caches) const {
+    if (static_cast<int>(kv_caches.size()) != num_layers) {
+        kv_caches.assign(static_cast<std::size_t>(num_layers), KVCache{});
+    }
+
+    int T = static_cast<int>(tokens.size());
+    assert(T > 0);
+
+    Tensor logits(vocab_size, T);
+
+    for (int t = 0; t < T; ++t) {
+        int id = tokens[t];
+        assert(id >= 0 && id < vocab_size);
+
+        // 1) 只处理当前 token 的 embedding
+        Tensor x(hidden_dim, 1);
+        for (int h = 0; h < hidden_dim; ++h) {
+            x(h, 0) = embedding(id, h);
+        }
+
+        // 2) 依次通过每一层的增量前向，复用 KV cache
+        Tensor h_col = x;
+        for (int layer = 0; layer < num_layers; ++layer) {
+            h_col = blocks[layer].forward_incremental(h_col, kv_caches[layer]);
+        }
+
+        // 3) 输出层只对当前 token 做一次投影
+        Tensor logit_col = lm_head.forward(h_col);  // [vocab_size,1]
+        for (int v = 0; v < vocab_size; ++v) {
+            logits(v, t) = logit_col(v, 0);
+        }
+    }
+
+    return logits;
+}

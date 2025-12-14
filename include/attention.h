@@ -7,6 +7,10 @@
 #include "linear.h"
 
 class WeightLoader;
+struct KVCache {
+    Tensor k_cache;
+    Tensor v_cache;
+};
 
 class Attention{
 public:
@@ -20,6 +24,7 @@ public:
 
     Attention(int hidden_dim, int num_heads);
     Tensor forward(const Tensor & x) const;
+    Tensor forward_incremental(const Tensor& x, Tensor& k_cache, Tensor& v_cache) const;
     void enable_int8();
 	    // Load q/k/v/o projection weights from a shared binary stream.
     void load_from(WeightLoader& loader);

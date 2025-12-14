@@ -44,6 +44,7 @@ public:
     // 输入: token 序列（长度 T）
     // 输出: logits，形状 [vocab_size, T]
     Tensor forward(const std::vector<int>& tokens) const;
+    Tensor forward_incremental(const std::vector<int>& tokens, std::vector<KVCache>& kv_caches) const;
     void load_from(WeightLoader& loader);
-	ForwardDebugInfo forward_debug(const std::vector<int>& tokens) const;
+    ForwardDebugInfo forward_debug(const std::vector<int>& tokens) const;
 };
