@@ -4,6 +4,7 @@
 #include <cassert>
 #include <cmath>
 #include <omp.h>
+#include "profiler.h"
 #include "weight_loader.h"
 Attention::Attention(int hidden_dim, int num_heads)
     : num_heads(num_heads),
@@ -18,6 +19,7 @@ Attention::Attention(int hidden_dim, int num_heads)
 
 Tensor Attention::forward(const Tensor& x) const {
     // x: [hidden_dim, seq_len]
+	ScopedTimer timer("attention");
     int hidden_dim = x.rows();
     int seq_len    = x.cols();
 

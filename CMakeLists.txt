@@ -25,6 +25,7 @@ set(TINY_LLM_SRC
         src/transformer_block.cpp
         src/model.cpp
         src/weight_loader.cpp
+        src/profiler.cpp
 )
 
 # ------- 生成 tiny-llm 库 -------
@@ -39,3 +40,5 @@ add_executable(test_quantization examples/test_quantization.cpp)
 target_link_libraries(test_quantization tiny-llm)
 add_executable(test_kv_cache examples/test_kv_cache.cpp)
 target_link_libraries(test_kv_cache tiny-llm)
+add_executable(run_benchmark benchmarks/run_benchmark.cpp)
+target_link_libraries(run_benchmark tiny-llm)

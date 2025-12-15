@@ -5,6 +5,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <cmath>
+#include "profiler.h"
 #include <algorithm>
 #include "weight_loader.h"
 #include "utils.h"
@@ -22,6 +23,7 @@ Linear::Linear(int out_dim,int in_dim)
     }
 }
 Tensor Linear::forward(const Tensor& x) const {
+    ScopedTimer timer("linear");
     if (use_int8_) {
         return forward_int8(x);
     }

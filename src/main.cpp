@@ -2,6 +2,7 @@
 #include <fstream>
 #include <vector>
 #include <stdexcept>
+#include "profiler.h"
 #include "transformer_block.h"
 #include "weight_loader.h"
 
@@ -91,6 +92,6 @@ int main() {
         }
         std::cout << "\n";
     }
-
+    dump_profile_csv("profile.csv");
     return 0;
 }

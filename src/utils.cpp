@@ -3,11 +3,14 @@
 //
 #include "utils.h"
 #include <cmath>
-
+#include <fstream>
+#include <string>
 #include <omp.h>
 #include <algorithm>
 #include <cstdint>
+#include "profiler.h"
 Tensor softmax(const Tensor& x) {
+    ScopedTimer timer("softmax");
     int n = x.rows();
     Tensor y(n,1);
 
@@ -19,7 +22,7 @@ Tensor softmax(const Tensor& x) {
         if (max_val < x_ptr[i]) {
             max_val = x_ptr[i];
         }
-	}
+	    }
     float sum = 0.0f;
     for (int i=0;i<n;i++) {
          float val =std::exp(x_ptr[i] - max_val);
@@ -53,7 +56,34 @@ void set_omp_threads(int num_threads) {
         omp_set_num_threads(num_threads);
     }
 }
+int autotune_threads(int seq_len) {
+    if (seq_len <= 32) return 2;
+    if (seq_len <= 128) return 4;
+    return 8;
+}
 
+void append_benchmark_csv(
+    int seq_len,
+    std::string precision,
+    bool kv_cache,
+    int threads,
+    double time_ms) {
+    std::ofstream fout("benchmark_results.csv", std::ios::app);
+    if (!fout) {
+        return;
+    }
+
+    // Write header if file is empty
+    if (fout.tellp() == 0) {
+        fout << "seq_len,precision,kv_cache,threads,time_ms\n";
+    }
+
+    fout << seq_len << ','
+         << precision << ','
+         << (kv_cache ? "true" : "false") << ','
+         << threads << ','
+         << time_ms << "\n";
+}
 float quantize_symmetric(const Tensor& tensor, std::vector<int8_t>& q_data) {
     const float* data = tensor.fptr();
     int size = tensor.size();

@@ -3,6 +3,8 @@
 //
 #include "model.h"
 #include <cassert>
+#include <omp.h>
+#include "utils.h"
 
 // 构造函数实现
 TransformerModel::TransformerModel(int vocab_size_,
@@ -50,7 +52,9 @@ Tensor TransformerModel::forward(const std::vector<int>& tokens) const
 ForwardDebugInfo TransformerModel::forward_debug(const std::vector<int>& tokens) const {
     int T = static_cast<int>(tokens.size());
     assert(T > 0 && T <= max_seq_len);
-	ForwardDebugInfo info;
+    int threads = autotune_threads(T);
+    omp_set_num_threads(threads);
+    ForwardDebugInfo info;
     // ===========================
     // 1. Embedding lookup: [hidden_dim, T]
     // ===========================
@@ -108,7 +112,8 @@ Tensor TransformerModel::forward_incremental(const std::vector<int>& tokens, std
 
     int T = static_cast<int>(tokens.size());
     assert(T > 0);
-
+    int threads = autotune_threads(T);
+    omp_set_num_threads(threads);
     Tensor logits(vocab_size, T);
 
     for (int t = 0; t < T; ++t) {
