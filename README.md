@@ -1,11 +1,11 @@
 # Tiny-LLM
-### A Lightweight CPU-based Transformer Inference Engine (C++ from Scratch)
+Tiny-LLM 是一个使用从零实现的c++ Transformer 推理引擎，目标是在cpu环境下实现Transformer推理流程，并探索从系统层面上的性能优化
 
-##  项目简介（What is Tiny-LLM?）
-Tiny-LLM 是一个 **基于 C++ 从零实现的轻量级 Transformer 推理引擎**，专门针对 **CPU 环境** 进行优化。
-项目的核心目标是完整复现 Transformer 模型的推理流程，并构建一个具备 **高性能、可扩展、可分析** 的推理系统。
+本项目不依赖于pythorch等推理框架，核心部件均由c++代码实现。
 
-Tiny-LLM **不依赖 PyTorch、TensorRT、ONNX Runtime** 等框架，所有实现均为手写，包括：
+##  项目简介
+Tiny-LLM 通过一个可控规模的 Tiny Transformer 模型，  
+覆盖从基础算子、模型结构、权重加载，到多线程、量化与 KV-Cache 的完整推理链路。
 
 - 自定义张量结构（Tensor）
 - 核心算子（Matmul / Softmax / LayerNorm）
@@ -45,5 +45,4 @@ Tiny-LLM 将实现以下核心模块：
 - FP32 vs INT8 测量
 - 单线程 vs 多线程分析
 - KV-Cache 加速效果测试
-- 输出 CSV 用于绘图和报告
 
